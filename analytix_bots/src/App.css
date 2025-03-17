@@ -1,0 +1,125 @@
+:root {
+  /* Analytix brand colors based on screenshots */
+  --primary-red: #e94444;
+  --primary-blue: #0e3564;
+  --secondary-blue: #2c77b8;
+  --light-gray: #f2f4f6;
+  --dark-gray: #333333;
+  --white: #ffffff;
+  --border-color: rgba(0, 0, 0, 0.15);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --border-radius: 8px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif;
+  color: var(--dark-gray);
+  background-color: var(--light-gray);
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+input,
+select {
+  font-family: inherit;
+}
+
+#root {
+  width: 100%;
+  height: 100vh;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  background-color: var(--light-gray);
+}
+
+.main-container {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  width: 100%;
+  height: calc(100vh - 60px); /* Adjust based on navbar height */
+  position: relative;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Fade-in animation for components */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Utility classes */
+.text-primary {
+  color: var(--primary-blue);
+}
+
+.text-accent {
+  color: var(--primary-red);
+}
+
+.bg-primary {
+  background-color: var(--primary-blue);
+}
+
+.bg-accent {
+  background-color: var(--primary-red);
+}
+
+.card {
+  background-color: var(--white);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .main-container {
+    flex-direction: column;
+  }
+}
