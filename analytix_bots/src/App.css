@@ -123,3 +123,76 @@ select {
     flex-direction: column;
   }
 }
+
+
+/* Add these styles to your App.css file */
+
+/* Error banner */
+.error-banner {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+  padding: 10px 15px;
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.error-banner button {
+  background-color: transparent;
+  border: none;
+  color: #721c24;
+  cursor: pointer;
+  font-weight: bold;
+  margin-left: 15px;
+}
+
+/* Loading indicator */
+.loading-indicator {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(
+    to right,
+    #4285f4,
+    #34a853,
+    #fbbc05,
+    #ea4335,
+    #4285f4
+  );
+  background-size: 200% 100%;
+  animation: loading-animation 1.5s infinite;
+  z-index: 1001;
+}
+
+@keyframes loading-animation {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .main-container {
+    flex-direction: column;
+  }
+  
+  .left-sidebar,
+  .right-sidebar,
+  .chat-interface {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+
+
