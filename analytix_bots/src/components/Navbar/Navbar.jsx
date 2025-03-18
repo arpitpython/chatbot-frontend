@@ -18,7 +18,7 @@ const Navbar = () => {
             </a>
           </div>
           <div className="navbar-title">
-            Analytix Solutions | Chatbot Assistant
+            Business Transformation | Chatbot Assistant
           </div>
         </div>
 
