@@ -21,19 +21,15 @@ const LeftSidebar = ({
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // In a real app, you'd upload the file to a server here using an API call
-
-      // For now, just create a document object with local data
       const newDocument = {
         id: Date.now(),
         name: file.name,
         type: file.type || getFileTypeFromExtension(file.name),
         size: file.size,
         lastModified: file.lastModified,
-        // In a real app, this would be the URL to the uploaded file
         url: URL.createObjectURL(file),
+        file: file
       };
-
       onDocumentUpload(newDocument);
     }
   };
@@ -123,24 +119,25 @@ const LeftSidebar = ({
 
   // Get file icon based on file type
   const getFileIcon = (fileType, fileName) => {
-    const extension = fileName.split(".").pop().toLowerCase();
+    const extension = fileName ? fileName.split(".").pop().toLowerCase() : "";
+    const fileTypeStr = fileType ? fileType.toString() : "";
 
-    if (fileType.includes("pdf") || extension === "pdf") {
+    if (fileTypeStr.includes("pdf") || extension === "pdf") {
       return <i className="file-icon pdf-icon"></i>;
     } else if (
-      fileType.includes("word") ||
+      fileTypeStr.includes("word") ||
       extension === "doc" ||
       extension === "docx"
     ) {
       return <i className="file-icon doc-icon"></i>;
     } else if (
-      fileType.includes("excel") ||
+      fileTypeStr.includes("excel") ||
       extension === "xls" ||
       extension === "xlsx" ||
       extension === "csv"
     ) {
       return <i className="file-icon excel-icon"></i>;
-    } else if (fileType.includes("image")) {
+    } else if (fileTypeStr.includes("image")) {
       return <i className="file-icon image-icon"></i>;
     } else {
       return <i className="file-icon default-icon"></i>;
@@ -177,7 +174,7 @@ const LeftSidebar = ({
               <label htmlFor="document-upload" className="document-upload">
                 <div className="upload-content">
                   <div className="upload-icon"></div>
-                  <div>Click to upload or drag a file here</div>
+                  <div>Upload Document</div>
                 </div>
                 <input
                   id="document-upload"
@@ -203,7 +200,7 @@ const LeftSidebar = ({
                           <div className="document-info">
                             <div className="document-name">{doc.name}</div>
                             <div className="document-meta">
-                              {formatFileSize(doc.size)}
+                              {formatDate(doc.created_at)}
                             </div>
                           </div>
                         </div>
@@ -249,3 +246,5 @@ const LeftSidebar = ({
 };
 
 export default LeftSidebar;
+
+
