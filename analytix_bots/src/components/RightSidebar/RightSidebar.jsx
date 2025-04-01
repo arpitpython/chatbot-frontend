@@ -18,54 +18,41 @@ const RightSidebar = ({ selectedDocument }) => {
   const loadDocumentPreview = (document) => {
     setIsLoading(true);
 
+    if (!document) {
+      setIsLoading(false);
+      setPreviewContent(null);
+      return;
+    }
+
     // Different preview handling based on file type
     const { type, url, name } = document;
-    const extension = name.split(".").pop().toLowerCase();
-
-    // In a real application, you'd make API calls to get the preview
-    // For demo purposes, we'll simulate different preview types
-
+    const extension = name ? name.split(".").pop().toLowerCase() : "";
+    const fileType = type ? type.toString() : "";
+    
     // Simulate preview loading delay
     setTimeout(() => {
       setIsLoading(false);
 
       // Generate preview content based on file type
-      if (type.includes("pdf") || extension === "pdf") {
-        setPreviewContent({
-          type: "pdf",
-          url: url,
-        });
+      if (fileType.includes("pdf") || extension === "pdf") {
+        setPreviewContent({ type: "pdf", url });
       } else if (
-        type.includes("word") ||
+        fileType.includes("word") ||
         extension === "doc" ||
         extension === "docx"
       ) {
-        // In a real app, you'd convert DOC to viewable format via API
-        // For demo, we'll show a DOC preview placeholder
-        setPreviewContent({
-          type: "doc",
-          url: url,
-        });
+        setPreviewContent({ type: "doc", url });
       } else if (
-        type.includes("excel") ||
+        fileType.includes("excel") ||
         extension === "xls" ||
         extension === "xlsx" ||
         extension === "csv"
       ) {
-        setPreviewContent({
-          type: "excel",
-          url: url,
-        });
-      } else if (type.includes("image")) {
-        setPreviewContent({
-          type: "image",
-          url: url,
-        });
+        setPreviewContent({ type: "excel", url });
+      } else if (fileType.includes("image")) {
+        setPreviewContent({ type: "image", url });
       } else {
-        setPreviewContent({
-          type: "unknown",
-          url: url,
-        });
+        setPreviewContent({ type: "unknown", url });
       }
     }, 500);
   };
@@ -140,11 +127,12 @@ const renderDocumentContent = (previewContent, document) => {
     case "pdf":
       return (
         <div className="pdf-document-preview">
-          <iframe
+          <embed
             src={url}
             title={name}
             width="100%"
             height="100%"
+            type="application/pdf"
             className="pdf-iframe"
           />
         </div>

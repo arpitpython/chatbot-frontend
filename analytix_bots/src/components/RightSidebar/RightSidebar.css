@@ -1,5 +1,5 @@
 .right-sidebar {
-  width: 30%;
+  width: 35%;
   min-width: 320px;
   background-color: #ffffff;
   border-left: 1px solid rgba(0, 0, 0, 0.15);
@@ -12,8 +12,8 @@
 
 /* Collapsed state */
 .right-sidebar.collapsed {
-  width: 40px;
-  min-width: 40px;
+  width: 50px;
+  min-width: 50px;
 }
 
 /* Header with integrated collapse button */
