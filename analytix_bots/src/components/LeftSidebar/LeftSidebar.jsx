@@ -1,4 +1,6 @@
+import "@fortawesome/fontawesome-free/css/all.min.css";
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./LeftSidebar.css";
 
 const LeftSidebar = ({
@@ -9,33 +11,52 @@ const LeftSidebar = ({
   onDocumentUpload,
   onDocumentDelete,
   chatSessions,
+  selectedDocumentId,
+  isDocumentsLoading,
+  activeSessionId,
+  onSessionSelect,
+  onNewChat,
+  isNewChat,
+  onSessionDelete,
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const navigate = useNavigate();
+  
+  // Set the first document as selected by default when documents change
+  React.useEffect(() => {
+    if (documents.length > 0 && (!selectedDocumentId || !documents.find(doc => doc.id === selectedDocumentId))) {
+      onDocumentSelect(documents[0]);
+    }
+  }, [documents, selectedDocumentId, onDocumentSelect]);
 
   // Function to handle bot type change
   const handleBotChange = (e) => {
-    onBotChange(e.target.value);
+    const newBotType = e.target.value;
+    
+    // Call the parent handler
+    onBotChange(newBotType);
   };
 
   // Function to handle file selection for document upload
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // In a real app, you'd upload the file to a server here using an API call
-
-      // For now, just create a document object with local data
       const newDocument = {
         id: Date.now(),
         name: file.name,
         type: file.type || getFileTypeFromExtension(file.name),
         size: file.size,
         lastModified: file.lastModified,
-        // In a real app, this would be the URL to the uploaded file
         url: URL.createObjectURL(file),
+        file: file
       };
-
       onDocumentUpload(newDocument);
     }
+  };
+
+  // Function to handle document selection
+  const handleDocumentSelect = (doc) => {
+    onDocumentSelect(doc);
   };
 
   // Function to handle document deletion
@@ -44,37 +65,75 @@ const LeftSidebar = ({
     onDocumentDelete(documentId);
   };
 
+  // Function to handle session selection
+  const handleSessionSelect = (sessionId) => {
+    console.log("LeftSidebar: Selecting session:", sessionId);
+    // Call the parent handler with the current bot type
+    onSessionSelect(sessionId);
+  };
+  
+  // Function to handle session deletion
+  const handleSessionDelete = (e, sessionId) => {
+    e.stopPropagation(); // Prevent session selection when clicking delete
+    if (onSessionDelete && window.confirm("Are you sure you want to delete this conversation?")) {
+      onSessionDelete(sessionId);
+    }
+  };
+
   // Generate a preview of chat sessions for non-document bots
   const renderSessionPreviews = () => {
-    const sessions = chatSessions[selectedBot];
+    const sessions = chatSessions[selectedBot] || [];
 
-    if (sessions.length === 0) {
-      return (
-        <div className="empty-sessions">
-          <p>No previous conversations.</p>
+    return (
+      <>
+        {/* New Chat Button */}
+        <div 
+          className={`new-chat-button ${isNewChat ? 'active' : ''}`}
+          onClick={onNewChat}
+        >
+          <i className="fas fa-plus-circle"></i>
+          <span>New Chat</span>
         </div>
-      );
-    }
-
-    // Group messages by session (for demonstration, every 10 messages is a new session)
-    const sessionChunks = [];
-    for (let i = 0; i < sessions.length; i += 10) {
-      sessionChunks.push(sessions.slice(i, i + 10));
-    }
-
-    return sessionChunks.map((session, index) => {
-      // Get the first message content as a preview
-      const previewMessage = session[0]?.content || "New Conversation";
-      const timestamp = session[0]?.timestamp || new Date();
-      return (
-        <div key={index} className="session-item">
-          <div className="session-preview">
-            {previewMessage.slice(0, 30)}...
+        
+        {/* Session List */}
+        {sessions.length === 0 ? (
+          <div className="empty-sessions">
+            <p>No previous conversations.</p>
           </div>
-          <div className="session-time">{formatDate(timestamp)}</div>
-        </div>
-      );
-    });
+        ) : (
+          <div className="session-list">
+            {sessions.map((session) => (
+              <div 
+                key={session.id} 
+                className={`session-item ${session.id === activeSessionId ? 'active' : ''}`}
+                onClick={() => handleSessionSelect(session.id)}
+              >
+                <div className="session-preview">
+                  <i className="fas fa-comment"></i>
+                  <div className="session-text">
+                    <div className="session-title">
+                      {session.title || "Untitled Conversation"}
+                    </div>
+                    <div className="session-excerpt">
+                      {session.preview || "No preview available"}
+                    </div>
+                  </div>
+                </div>
+                <div className="session-time">{formatDate(session.created_at)}</div>
+                {/* Delete session button */}
+                <button
+                  className="session-delete-btn"
+                  onClick={(e) => handleSessionDelete(e, session.id)}
+                  title="Delete conversation"
+                >
+                  <i className="fas fa-trash-alt"></i>
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </>
+    );
   };
 
   // Helper function to format date
@@ -114,36 +173,30 @@ const LeftSidebar = ({
     }
   };
 
-  // Format file size
-  const formatFileSize = (bytes) => {
-    if (bytes < 1024) return bytes + " bytes";
-    else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB";
-    else return (bytes / 1048576).toFixed(1) + " MB";
-  };
-
   // Get file icon based on file type
   const getFileIcon = (fileType, fileName) => {
-    const extension = fileName.split(".").pop().toLowerCase();
+    const extension = fileName ? fileName.split(".").pop().toLowerCase() : "";
+    const fileTypeStr = fileType ? fileType.toString() : "";
 
-    if (fileType.includes("pdf") || extension === "pdf") {
-      return <i className="file-icon pdf-icon"></i>;
+    if (fileTypeStr.includes("pdf") || extension === "pdf") {
+      return <i className="fas fa-file-pdf file-icon"></i>;
     } else if (
-      fileType.includes("word") ||
+      fileTypeStr.includes("word") ||
       extension === "doc" ||
       extension === "docx"
     ) {
-      return <i className="file-icon doc-icon"></i>;
+      return <i className="fas fa-file-word file-icon"></i>;
     } else if (
-      fileType.includes("excel") ||
+      fileTypeStr.includes("excel") ||
       extension === "xls" ||
       extension === "xlsx" ||
       extension === "csv"
     ) {
-      return <i className="file-icon excel-icon"></i>;
-    } else if (fileType.includes("image")) {
-      return <i className="file-icon image-icon"></i>;
+      return <i className="fas fa-file-excel file-icon"></i>;
+    } else if (fileTypeStr.includes("image")) {
+      return <i className="fas fa-file-image file-icon"></i>;
     } else {
-      return <i className="file-icon default-icon"></i>;
+      return <i className="fas fa-file file-icon"></i>;
     }
   };
 
@@ -176,8 +229,10 @@ const LeftSidebar = ({
               {/* Document upload area - now at the top for document bot */}
               <label htmlFor="document-upload" className="document-upload">
                 <div className="upload-content">
-                  <div className="upload-icon"></div>
-                  <div>Click to upload or drag a file here</div>
+                  <div className="upload-icon">
+                    <i className="fas fa-cloud-upload-alt"></i>
+                  </div>
+                  <div>Upload Document</div>
                 </div>
                 <input
                   id="document-upload"
@@ -187,23 +242,39 @@ const LeftSidebar = ({
                 />
               </label>
 
+              {/* Clear conversation button for document bot if a document is selected */}
+              {selectedDocumentId && (
+                <div 
+                  className={`new-chat-button ${isNewChat ? 'active' : ''}`}
+                  onClick={onNewChat}
+                >
+                  <i className="fas fa-plus-circle"></i>
+                  <span>Clear Conversation</span>
+                </div>
+              )}
+
               {/* Document list with separate scroll area */}
               <div className="document-list-container">
                 <h4>Uploaded Documents</h4>
                 <div className="document-list">
-                  {documents.length > 0 ? (
+                  {isDocumentsLoading ? (
+                    <div className="document-loading">
+                      <div className="loading-spinner"></div>
+                      <p>Loading documents...</p>
+                    </div>
+                  ) : documents.length > 0 ? (
                     documents.map((doc) => (
                       <div
                         key={doc.id}
-                        className="document-card"
-                        onClick={() => onDocumentSelect(doc)}
+                        className={`document-card ${doc.id === selectedDocumentId ? "active" : ""}`}
+                        onClick={() => handleDocumentSelect(doc)}
                       >
                         <div className="document-card-content">
                           {getFileIcon(doc.type, doc.name)}
                           <div className="document-info">
                             <div className="document-name">{doc.name}</div>
                             <div className="document-meta">
-                              {formatFileSize(doc.size)}
+                              {doc.created_at ? formatDate(doc.created_at) : ""}
                             </div>
                           </div>
                         </div>
@@ -212,7 +283,7 @@ const LeftSidebar = ({
                           onClick={(e) => handleDeleteDocument(e, doc.id)}
                           title="Delete document"
                         >
-                          <span className="delete-icon"></span>
+                          <i className="fas fa-trash"></i>
                         </button>
                       </div>
                     ))
@@ -239,6 +310,7 @@ const LeftSidebar = ({
             >
               <option value="grammar">Grammar Bot</option>
               <option value="email">Email Bot</option>
+              <option value="meeting_insights">Meeting Insights</option>
               <option value="document">Document Bot</option>
             </select>
           </div>
